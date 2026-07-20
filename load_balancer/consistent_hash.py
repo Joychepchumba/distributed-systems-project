@@ -33,11 +33,21 @@ class ConsistentHashMap:
         return (req_id**2 + 2*req_id + 17) % self.num_slots
 
 
-    def server_hash(self, server_id, virtual_id):
-        """Phi(i, j) = i^2 + j^2 + 2j + 25 -- maps a (server, virtual node)
-        pair to a ring slot."""
+    def server_hash(self, server_id: int, virtual_id: int) -> int:
+        """Hash a server node and its virtual copy to a slot on the consistent hashing ring.
+
+        Uses the quadratic hash function formula: Phi(i, j) = (i^2 + j^2 + 2j + 25) % M.
+
+        Args:
+            server_id (int): The numeric ID assigned to the physical server.
+            virtual_id (int): The virtual replica index for the server.
+
+        Returns:
+            int: The calculated slot index on the ring (0 <= index < num_slots).
+        """
         i, j = server_id, virtual_id
         return (i**2 + j**2 + 2*j + 25) % self.num_slots
+
 
     def add_server(self, server_id):
         """Place all of a server's virtual nodes on the ring, resolving
