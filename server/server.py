@@ -1,7 +1,13 @@
-from flask import Flask, jsonify
+"""Backend server replica instance.
+
+Serves simple JSON content and exposes a heartbeat endpoint for the
+load balancer's self-healing daemon.
+"""
 import os
+from flask import Flask, jsonify
 
 app = Flask(__name__)
+
 
 SERVER_ID = os.environ.get("SERVER_ID", "Unknown")
 
