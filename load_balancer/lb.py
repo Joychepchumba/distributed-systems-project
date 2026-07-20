@@ -33,9 +33,14 @@ lock           = threading.Lock()
 
 # helpers 
 
-def random_hostname():
-    """Generate a random container/hostname like 'Server_A1B2'."""
+def random_hostname() -> str:
+    """Generate a random container/hostname string.
+
+    Returns:
+        str: A string of the format 'Server_XXXX' where XXXX are 4 random uppercase alphanumeric characters.
+    """
     return "Server_" + "".join(random.choices(string.ascii_uppercase + string.digits, k=4))
+
 
 def spawn_container(hostname, server_id):
     """Start a new server container on the shared Docker network via the
