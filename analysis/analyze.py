@@ -101,7 +101,13 @@ def _std(values: List[float]) -> float:
 
 #  A-1 
 
-def task_a1():
+def task_a1() -> None:
+    """Benchmark A-1: Test request distribution across N=3 servers with 10k requests.
+
+    Sends 10,000 asynchronous HTTP requests to the load balancer, aggregates
+    the distribution of requests handled by each server replica, and saves
+    a bar chart visualizing the load distribution.
+    """
     print("\n=== A-1: 10,000 async requests on N=3 ===")
     set_n_servers(3)
     replicas = get_replicas()["replicas"]
@@ -118,6 +124,7 @@ def task_a1():
     values = list(counts.values())
     ideal  = success / len(labels) if labels else 0
 
+    # Plot request distribution bar chart
     fig, ax = plt.subplots(figsize=(max(8, len(labels) * 1.2), 5))
     bars = ax.bar(range(len(labels)), values, color="steelblue", edgecolor="white")
     ax.axhline(ideal, color="tomato", linestyle="--", linewidth=1.4, label=f"Ideal ({ideal:.0f})")
@@ -134,6 +141,7 @@ def task_a1():
     plt.savefig("a1_distribution.png", dpi=150)
     print("Saved → a1_distribution.png")
     plt.show()
+
 
 # A-2 
 
