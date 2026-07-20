@@ -251,10 +251,17 @@ def remove():
 
 
 @app.route("/<path:path>", methods=["GET"])
-def route(path):
+def route(path: str):
     """Forward an arbitrary GET request to whichever server the
     consistent-hash ring selects for a freshly generated random
-    request ID."""
+    request ID.
+
+    Args:
+        path (str): The remaining URL path that the client requested.
+
+    Returns:
+        JSON response forwarded from the target server or an error status code.
+    """
     req_id = random.randint(100000, 999999)
     with lock:
         server_id = chmap.get_server(req_id)
@@ -279,6 +286,7 @@ def route(path):
             "message": f"<Error> Server '{target}' is unavailable",
             "status": "failure"
         }), 503
+
 
 
 if __name__ == "__main__":
