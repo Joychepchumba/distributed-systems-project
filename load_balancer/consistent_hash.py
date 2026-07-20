@@ -19,9 +19,19 @@ class ConsistentHashMap:
         self.hash_map: list = [None] * num_slots  # the ring
 
 
-    def request_hash(self, req_id):
-        """H(i) = i^2 + 2i + 17 -- maps a request ID to a ring slot."""
+    def request_hash(self, req_id: int) -> int:
+        """Hash a request ID to a specific slot on the consistent hashing ring.
+
+        Uses the quadratic hash function formula: H(i) = (i^2 + 2i + 17) % M.
+
+        Args:
+            req_id (int): The unique integer ID of the incoming request.
+
+        Returns:
+            int: The calculated slot index on the ring (0 <= index < num_slots).
+        """
         return (req_id**2 + 2*req_id + 17) % self.num_slots
+
 
     def server_hash(self, server_id, virtual_id):
         """Phi(i, j) = i^2 + j^2 + 2j + 25 -- maps a (server, virtual node)
