@@ -117,15 +117,18 @@ def init_servers() -> None:
 
 # heartbeat monitor 
 
-def heartbeat_loop():
-    """Background thread: every 5s, ping every registered server's
-    /heartbeat endpoint and replace any that fail to respond with a
-    freshly spawned container (self-healing)."""
+def heartbeat_loop() -> None:
+    """Background thread loop: every 5 seconds, check health of all registered servers.
+
+    Pings the /heartbeat endpoint of each server container. If a server is
+    unreachable or fails to return HTTP 200, it is removed from the consistent
+    hash ring and its container is replaced with a new, healthy server.
+    """
     global server_id_counter
     while True:
         time.sleep(5)
 
-        # Snapshot hostnames without holding the lock during I/O
+        # Snapshot hostnames without holding the lock during slow network I/O
         with lock:
             snapshot = list(servers.keys())
 
@@ -152,7 +155,7 @@ def heartbeat_loop():
 
             new_name = random_hostname()
 
-            # Docker ops happen outside the lock so requests are never blocked
+            # Docker operations happen outside the lock so user requests are not blocked
             kill_container(hostname)
             if spawn_container(new_name, new_id):
                 with lock:
@@ -160,6 +163,7 @@ def heartbeat_loop():
                     chmap.add_server(new_id)
             else:
                 print(f"[LB] Failed to spawn replacement for {hostname}")
+
 
 # endpoints 
 
