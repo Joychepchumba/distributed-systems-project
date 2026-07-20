@@ -169,7 +169,11 @@ def heartbeat_loop() -> None:
 
 @app.route("/rep", methods=["GET"])
 def rep():
-    """Return the current replica count and hostnames."""
+    """Return the current replica count and hostnames.
+
+    Returns:
+        JSON response with the list of running replicas and HTTP 200.
+    """
     with lock:
         return jsonify({
             "message": {"N": len(servers), "replicas": list(servers.keys())},
@@ -181,7 +185,11 @@ def rep():
 def add():
     """Scale up: spawn `n` new server containers (using any given
     `hostnames`, filling the rest with random ones) and register them
-    on the ring."""
+    on the consistent hash ring.
+
+    Returns:
+        JSON response with updated list of replicas and HTTP 200, or HTTP 400 on error.
+    """
     global server_id_counter
     data      = request.json
     n         = data.get("n", 0)
@@ -204,6 +212,7 @@ def add():
             "message": {"N": len(servers), "replicas": list(servers.keys())},
             "status": "successful"
         }), 200
+
 
 
 @app.route("/rm", methods=["DELETE"])
