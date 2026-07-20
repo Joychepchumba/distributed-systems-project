@@ -26,7 +26,15 @@ def home():
 
 @app.route("/heartbeat", methods=["GET"])
 def heartbeat():
+    """Return an empty successful response to indicate the replica is alive.
+
+    Used by the load balancer's background self-healing daemon.
+
+    Returns:
+        Empty response with HTTP status code 200.
+    """
     return "", 200
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
