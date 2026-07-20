@@ -101,15 +101,19 @@ def remove_server_internal(hostname: str) -> None:
 
 # startup 
 
-def init_servers():
+def init_servers() -> None:
     """Spawn the initial N server containers at startup and register
-    them on the hash ring."""
+    them on the consistent hash ring.
+
+    This function runs exactly once at startup.
+    """
     global server_id_counter
     with lock:
         for i in range(1, N + 1):
             hostname = f"Server_{i}"
             add_server_internal(hostname, server_id_counter)
             server_id_counter += 1
+
 
 # heartbeat monitor 
 
