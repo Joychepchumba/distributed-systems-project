@@ -61,10 +61,15 @@ def spawn_container(hostname: str, server_id: int) -> bool:
     return result.returncode == 0
 
 
-def kill_container(hostname):
-    """Stop and remove a server container via the Docker CLI."""
+def kill_container(hostname: str) -> None:
+    """Stop and remove a server container instance via the Docker CLI.
+
+    Args:
+        hostname (str): Unique name of the container/server instance to terminate.
+    """
     subprocess.run(['docker', 'stop', hostname], capture_output=True)
     subprocess.run(['docker', 'rm',   hostname], capture_output=True)
+
 
 def add_server_internal(hostname, server_id):
     """Spawn container + register in ring. Caller must hold lock."""
