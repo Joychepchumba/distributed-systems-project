@@ -71,20 +71,33 @@ def kill_container(hostname: str) -> None:
     subprocess.run(['docker', 'rm',   hostname], capture_output=True)
 
 
-def add_server_internal(hostname, server_id):
-    """Spawn container + register in ring. Caller must hold lock."""
+def add_server_internal(hostname: str, server_id: int) -> bool:
+    """Spawn container + register in ring. Caller must hold lock.
+
+    Args:
+        hostname (str): Unique name/hostname of the container.
+        server_id (int): Numeric identifier assigned to this container.
+
+    Returns:
+        bool: True if server successfully spawned and added to consistent hash ring, False otherwise.
+    """
     if spawn_container(hostname, server_id):
         servers[hostname] = server_id
         chmap.add_server(server_id)
         return True
     return False
 
-def remove_server_internal(hostname):
-    """Remove from ring + kill container. Caller must hold lock."""
+def remove_server_internal(hostname: str) -> None:
+    """Remove from ring + kill container. Caller must hold lock.
+
+    Args:
+        hostname (str): Unique name/hostname of the container to tear down.
+    """
     server_id = servers.pop(hostname, None)
     if server_id is not None:
         chmap.remove_server(server_id)
         kill_container(hostname)
+
 
 # startup 
 
