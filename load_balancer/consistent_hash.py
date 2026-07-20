@@ -64,11 +64,16 @@ class ConsistentHashMap:
             self.hash_map[slot] = server_id
 
 
-    def remove_server(self, server_id):
-        """Clear every slot occupied by this server's virtual nodes."""
+    def remove_server(self, server_id: int) -> None:
+        """Clear every slot occupied by this server's virtual nodes.
+
+        Args:
+            server_id (int): The unique identifier of the physical server to remove.
+        """
         for slot in range(self.num_slots):
             if self.hash_map[slot] == server_id:
                 self.hash_map[slot] = None
+
 
     def get_server(self, req_id):
         """Hash the request onto the ring, then walk clockwise to the
