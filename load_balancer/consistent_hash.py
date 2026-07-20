@@ -7,10 +7,17 @@ class ConsistentHashMap:
     that fall in its immediate vicinity on the ring.
     """
 
-    def __init__(self, num_slots=512, num_virtual=9):
-        self.num_slots = num_slots        # M = 512
-        self.num_virtual = num_virtual    # K = 9
-        self.hash_map = [None] * num_slots  # the ring
+    def __init__(self, num_slots: int = 512, num_virtual: int = 9) -> None:
+        """Initialize the consistent hash ring map.
+
+        Args:
+            num_slots (int): Total number of slots (M) on the hash ring. Default is 512.
+            num_virtual (int): Number of virtual nodes (K) per server. Default is 9.
+        """
+        self.num_slots: int = num_slots        # M = 512
+        self.num_virtual: int = num_virtual    # K = 9
+        self.hash_map: list = [None] * num_slots  # the ring
+
 
     def request_hash(self, req_id):
         """H(i) = i^2 + 2i + 17 -- maps a request ID to a ring slot."""
