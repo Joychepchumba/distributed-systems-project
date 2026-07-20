@@ -219,7 +219,11 @@ def add():
 def remove():
     """Scale down: remove `n` server containers (specific `hostnames`
     if given, otherwise chosen at random) from the ring and tear them
-    down."""
+    down.
+
+    Returns:
+        JSON response with updated list of replicas and HTTP 200, or HTTP 400 on error.
+    """
     data      = request.json
     n         = data.get("n", 0)
     hostnames = list(data.get("hostnames", []))
@@ -243,6 +247,7 @@ def remove():
             "message": {"N": len(servers), "replicas": list(servers.keys())},
             "status": "successful"
         }), 200
+
 
 
 @app.route("/<path:path>", methods=["GET"])
