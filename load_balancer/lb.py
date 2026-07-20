@@ -1,4 +1,4 @@
-"""Load balancer service.
+"""Load balancer service for the distributed systems project.
 
 Spawns/kills backend server containers via the Docker CLI (using the
 host's Docker socket mounted into this container), registers them on a
@@ -6,11 +6,19 @@ consistent-hash ring, forwards client requests to the ring-selected
 replica, and runs a background heartbeat thread that detects and
 replaces dead replicas automatically.
 """
+import os
+import random
+import string
+import subprocess
+import threading
+import time
+from typing import Dict, List, Optional
+
 from flask import Flask, jsonify, request
-import os, threading, time, random, string, subprocess
 import requests as req
 
 from consistent_hash import ConsistentHashMap
+
 
 app = Flask(__name__)
 
