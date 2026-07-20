@@ -7,42 +7,88 @@ class ConsistentHashMap:
     that fall in its immediate vicinity on the ring.
     """
 
-    def __init__(self, num_slots=512, num_virtual=9):
-        self.num_slots = num_slots        # M = 512
-        self.num_virtual = num_virtual    # K = 9
-        self.hash_map = [None] * num_slots  # the ring
+    def __init__(self, num_slots: int = 512, num_virtual: int = 9) -> None:
+        """Initialize the consistent hash ring map.
 
-    def request_hash(self, req_id):
-        """H(i) = i^2 + 2i + 17 -- maps a request ID to a ring slot."""
+        Args:
+            num_slots (int): Total number of slots (M) on the hash ring. Default is 512.
+            num_virtual (int): Number of virtual nodes (K) per server. Default is 9.
+        """
+        self.num_slots: int = num_slots        # M = 512
+        self.num_virtual: int = num_virtual    # K = 9
+        self.hash_map: list = [None] * num_slots  # the ring
+
+
+    def request_hash(self, req_id: int) -> int:
+        """Hash a request ID to a specific slot on the consistent hashing ring.
+
+        Uses the quadratic hash function formula: H(i) = (i^2 + 2i + 17) % M.
+
+        Args:
+            req_id (int): The unique integer ID of the incoming request.
+
+        Returns:
+            int: The calculated slot index on the ring (0 <= index < num_slots).
+        """
         return (req_id**2 + 2*req_id + 17) % self.num_slots
 
-    def server_hash(self, server_id, virtual_id):
-        """Phi(i, j) = i^2 + j^2 + 2j + 25 -- maps a (server, virtual node)
-        pair to a ring slot."""
+
+    def server_hash(self, server_id: int, virtual_id: int) -> int:
+        """Hash a server node and its virtual copy to a slot on the consistent hashing ring.
+
+        Uses the quadratic hash function formula: Phi(i, j) = (i^2 + j^2 + 2j + 25) % M.
+
+        Args:
+            server_id (int): The numeric ID assigned to the physical server.
+            virtual_id (int): The virtual replica index for the server.
+
+        Returns:
+            int: The calculated slot index on the ring (0 <= index < num_slots).
+        """
         i, j = server_id, virtual_id
         return (i**2 + j**2 + 2*j + 25) % self.num_slots
 
-    def add_server(self, server_id):
+
+    def add_server(self, server_id: int) -> None:
         """Place all of a server's virtual nodes on the ring, resolving
-        any slot collisions via linear probing to the next free slot."""
+        any slot collisions via linear probing to the next free slot.
+
+        Args:
+            server_id (int): The unique identifier of the physical server to register.
+        """
         for j in range(self.num_virtual):
             slot = self.server_hash(server_id, j)
+            # Resolve collisions on the ring using linear probing
             while self.hash_map[slot] is not None:
                 slot = (slot + 1) % self.num_slots
             self.hash_map[slot] = server_id
 
-    def remove_server(self, server_id):
-        """Clear every slot occupied by this server's virtual nodes."""
+
+    def remove_server(self, server_id: int) -> None:
+        """Clear every slot occupied by this server's virtual nodes.
+
+        Args:
+            server_id (int): The unique identifier of the physical server to remove.
+        """
         for slot in range(self.num_slots):
             if self.hash_map[slot] == server_id:
                 self.hash_map[slot] = None
 
-    def get_server(self, req_id):
+
+    def get_server(self, req_id: int) -> int:
         """Hash the request onto the ring, then walk clockwise to the
-        nearest occupied slot - that slot's server handles the request."""
+        nearest occupied slot - that slot's server handles the request.
+
+        Args:
+            req_id (int): The unique integer ID of the incoming request.
+
+        Returns:
+            int: The ID of the assigned server replica, or None if no servers exist.
+        """
         slot = self.request_hash(req_id)
+        # Search clockwise starting from the request's mapped slot
         for i in range(self.num_slots):
             candidate = self.hash_map[(slot + i) % self.num_slots]
             if candidate is not None:
                 return candidate
-        return None  # no servers at all
+        return None  # no servers at all
