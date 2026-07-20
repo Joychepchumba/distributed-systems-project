@@ -75,12 +75,20 @@ class ConsistentHashMap:
                 self.hash_map[slot] = None
 
 
-    def get_server(self, req_id):
+    def get_server(self, req_id: int) -> int:
         """Hash the request onto the ring, then walk clockwise to the
-        nearest occupied slot - that slot's server handles the request."""
+        nearest occupied slot - that slot's server handles the request.
+
+        Args:
+            req_id (int): The unique integer ID of the incoming request.
+
+        Returns:
+            int: The ID of the assigned server replica, or None if no servers exist.
+        """
         slot = self.request_hash(req_id)
+        # Search clockwise starting from the request's mapped slot
         for i in range(self.num_slots):
             candidate = self.hash_map[(slot + i) % self.num_slots]
             if candidate is not None:
                 return candidate
-        return None  # no servers at all
+        return None  # no servers at all
