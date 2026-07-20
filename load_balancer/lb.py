@@ -42,9 +42,16 @@ def random_hostname() -> str:
     return "Server_" + "".join(random.choices(string.ascii_uppercase + string.digits, k=4))
 
 
-def spawn_container(hostname, server_id):
-    """Start a new server container on the shared Docker network via the
-    Docker CLI. Returns True on success."""
+def spawn_container(hostname: str, server_id: int) -> bool:
+    """Start a new server container instance on the shared Docker network.
+
+    Args:
+        hostname (str): Unique hostname and container name to spawn.
+        server_id (int): Numeric identifier passed as environment variable SERVER_ID.
+
+    Returns:
+        bool: True if the Docker command successfully launched the container, False otherwise.
+    """
     result = subprocess.run(
         ['docker', 'run', '--name', hostname,
          '--network', NETWORK, '--network-alias', hostname,
@@ -52,6 +59,7 @@ def spawn_container(hostname, server_id):
         capture_output=True, text=True
     )
     return result.returncode == 0
+
 
 def kill_container(hostname):
     """Stop and remove a server container via the Docker CLI."""
