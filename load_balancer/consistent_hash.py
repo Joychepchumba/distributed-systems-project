@@ -49,14 +49,20 @@ class ConsistentHashMap:
         return (i**2 + j**2 + 2*j + 25) % self.num_slots
 
 
-    def add_server(self, server_id):
+    def add_server(self, server_id: int) -> None:
         """Place all of a server's virtual nodes on the ring, resolving
-        any slot collisions via linear probing to the next free slot."""
+        any slot collisions via linear probing to the next free slot.
+
+        Args:
+            server_id (int): The unique identifier of the physical server to register.
+        """
         for j in range(self.num_virtual):
             slot = self.server_hash(server_id, j)
+            # Resolve collisions on the ring using linear probing
             while self.hash_map[slot] is not None:
                 slot = (slot + 1) % self.num_slots
             self.hash_map[slot] = server_id
+
 
     def remove_server(self, server_id):
         """Clear every slot occupied by this server's virtual nodes."""
