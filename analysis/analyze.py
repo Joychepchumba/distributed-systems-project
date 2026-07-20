@@ -25,7 +25,16 @@ TOTAL_REQUESTS = 10000
 
 # shared helpers 
 
-async def _fetch(session, url):
+async def _fetch(session: aiohttp.ClientSession, url: str) -> Optional[str]:
+    """Fetch JSON data from a URL using an async HTTP client session.
+
+    Args:
+        session (aiohttp.ClientSession): The active client session context.
+        url (str): The target endpoint URL to GET request.
+
+    Returns:
+        Optional[str]: The message string returned by the replica, or None on error.
+    """
     try:
         async with session.get(url, timeout=aiohttp.ClientTimeout(total=15)) as resp:
             data = await resp.json(content_type=None)
@@ -33,25 +42,46 @@ async def _fetch(session, url):
     except Exception:
         return None
 
-async def _send_async(n, path="home"):
+async def _send_async(n: int, path: str = "home") -> List[Optional[str]]:
+    """Send n concurrent GET requests asynchronously to the load balancer.
+
+    Args:
+        n (int): Number of total requests to dispatch.
+        path (str): Endpoint path on the target server.
+
+    Returns:
+        List[Optional[str]]: A list containing all responses returned from servers.
+    """
     connector = aiohttp.TCPConnector(limit=200)
     async with aiohttp.ClientSession(connector=connector) as session:
         tasks = [_fetch(session, f"{LB_URL}/{path}") for _ in range(n)]
         return await asyncio.gather(*tasks)
 
-def count_by_server(results):
+def count_by_server(results: List[Optional[str]]) -> Dict[str, int]:
+    """Count and aggregate response messages by individual server name.
+
+    Args:
+        results (List[Optional[str]]): A list of messages returned by backend replicas.
+
+    Returns:
+        Dict[str, int]: A sorted dictionary mapping server names to request counts.
+    """
     counts = {}
     for msg in results:
         if msg:
             counts[msg] = counts.get(msg, 0) + 1
     return dict(sorted(counts.items()))
 
-def get_replicas():
+def get_replicas() -> dict:
     """Fetch the current replica count/hostnames from the live load balancer."""
     return requests.get(f"{LB_URL}/rep").json()["message"]
 
-def set_n_servers(target):
-    """Scale the live load balancer to exactly `target` servers."""
+def set_n_servers(target: int) -> None:
+    """Scale the live load balancer to exactly `target` servers.
+
+    Args:
+        target (int): Target number of active servers.
+    """
     info = get_replicas()
     diff = target - info["N"]
     if diff > 0:
@@ -61,11 +91,13 @@ def set_n_servers(target):
         requests.delete(f"{LB_URL}/rm", json={"n": -diff, "hostnames": []})
         time.sleep(1)
 
-def _std(values):
+def _std(values: List[float]) -> float:
+    """Calculate the standard deviation of a sequence of values."""
     if not values:
-        return 0
+        return 0.0
     avg = sum(values) / len(values)
     return math.sqrt(sum((v - avg) ** 2 for v in values) / len(values))
+
 
 #  A-1 
 
