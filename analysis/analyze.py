@@ -15,6 +15,8 @@ import time
 import math
 import random
 import subprocess
+from typing import Dict, List, Optional
+
 
 import aiohttp
 import matplotlib.pyplot as plt
@@ -220,9 +222,12 @@ def task_a3() -> None:
 
 
 # A-4 offline simulation 
-def _simulate(H, Phi, n_servers=3, n_requests=10000,
-              num_slots=512, num_virtual=9):
-    """Simulate request distribution without any Docker dependency."""
+def _simulate(H, Phi, n_servers: int = 3, n_requests: int = 10000,
+              num_slots: int = 512, num_virtual: int = 9) -> Dict[int, int]:
+    """Simulate request distribution without any Docker dependency.
+
+    Provides a clean mathematical simulation of the consistent hashing ring assignment.
+    """
     ring = [None] * num_slots
 
     def probe(slot):
@@ -250,7 +255,12 @@ def _simulate(H, Phi, n_servers=3, n_requests=10000,
 
     return counts
 
-def task_a4():
+def task_a4() -> None:
+    """Benchmark A-4: Compare the original hashing function against a modified version.
+
+    Runs an offline simulation for both hash configurations, compares request distribution
+    across N=3 servers, and visualizes the average scalability across server sizes (2 to 6).
+    """
     print("\n A-4: Hash function comparison (offline simulation) \n")
 
     configs = [
@@ -307,6 +317,7 @@ def task_a4():
     plt.savefig("a4_scalability_comparison.png", dpi=150)
     print("Saved → a4_scalability_comparison.png")
     plt.show()
+
 
 # entry point
 
