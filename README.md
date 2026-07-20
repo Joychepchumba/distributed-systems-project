@@ -27,3 +27,44 @@ The load balancer exposes the following HTTP REST endpoints:
 | `/add` | `POST` | Dynamically scale up the active server count by $n$ instances. |
 | `/rm` | `DELETE` | Dynamically scale down the active server count by $n$ instances. |
 | `/<path>` | `GET` | Proxy incoming request to a consistent-hash selected replica. |
+
+---
+
+## 3. Getting Started
+
+### Prerequisites
+- Python 3.10+
+- Docker & Docker Compose
+- `pip` packages specified in `requirements.txt`
+
+### Running the Services
+1. Build the server image:
+   ```bash
+   docker build -t server_img ./server
+   ```
+2. Build and start the load balancer service (which accesses the host Docker daemon socket to spawn backend replicas dynamically):
+   ```bash
+   docker compose up --build
+   ```
+
+---
+
+## 4. Performance & Benchmarking Suite
+
+The project includes a benchmarking script to evaluate request distributions, scalability metrics, and failure recovery.
+
+### Execution
+Run the benchmarking suite via:
+```bash
+python analysis/analyze.py [a1|a2|a3|a4|all]
+```
+
+- **`a1`**: Measures request distribution across 3 replicas using 10,000 asynchronous client requests.
+- **`a2`**: Evaluates scalability, recording average server load as $N$ ranges from 2 to 6.
+- **`a3`**: Kills a container instance and measures time taken for self-healing daemon to deploy a replacement replica.
+- **`a4`**: Runs offline mathematical simulation comparing the default quadratic hash ring setup against a modified function option.
+
+---
+
+## 5. Contributors and Academic Integrity
+Created as part of the Distributed Systems course project. All contributions are logged via git commits detailing incremental refactoring, code quality, typing enhancements, and modular configuration improvements.
