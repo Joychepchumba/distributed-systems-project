@@ -189,7 +189,14 @@ def task_a2() -> None:
 
 # A-3
 
-def task_a3():
+def task_a3() -> None:
+    """Benchmark A-3: Test failure detection and self-healing recovery time.
+
+    Starts with N=3 servers, kills one container directly via the Docker CLI,
+    and polls the load balancer replica list every second to verify that
+    the background heartbeat monitor successfully detects the dead server
+    and launches a replacement within the 20-second timeout period.
+    """
     print("\n A-3: Failure and recovery ===")
     set_n_servers(3)
     before = get_replicas()
@@ -197,10 +204,12 @@ def task_a3():
 
     victim = before["replicas"][0]
     print(f"Killing container: {victim}")
+    # Forcefully stop and remove the server container to simulate a sudden crash
     subprocess.run(["docker", "stop", victim], capture_output=True)
     subprocess.run(["docker", "rm",   victim], capture_output=True)
     print("Container killed — waiting for heartbeat recovery (max 20 s)…")
 
+    # Poll status every 1 second to measure recovery elapsed time
     for elapsed in range(1, 21):
         time.sleep(1)
         after = get_replicas()
@@ -208,6 +217,7 @@ def task_a3():
             print(f"  Recovered after {elapsed} s: N={after['N']}, replicas={after['replicas']}")
             return
     print(f"  State after 20 s: {get_replicas()}")
+
 
 # A-4 offline simulation 
 def _simulate(H, Phi, n_servers=3, n_requests=10000,
