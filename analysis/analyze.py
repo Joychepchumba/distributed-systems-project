@@ -145,7 +145,13 @@ def task_a1() -> None:
 
 # A-2 
 
-def task_a2():
+def task_a2() -> None:
+    """Benchmark A-2: Test scalability by scaling N from 2 to 6 servers.
+
+    Iterates through different active server counts (N = 2 to 6), sends 10,000 concurrent
+    requests to the load balancer, records the average load and standard deviation per server,
+    and plots an errorbar chart comparing the load metrics with the theoretical ideal limit.
+    """
     print("\n=== A-2: Scalability — N from 2 to 6 ===")
     ns        = list(range(2, 7))
     avgs      = []
@@ -165,6 +171,7 @@ def task_a2():
 
     ideal = [TOTAL_REQUESTS / n for n in ns]
 
+    # Plot scalability errorbar comparing measured avg requests with the ideal line
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.errorbar(ns, avgs, yerr=stds, marker='o', capsize=5,
                 label="Measured avg ± std", color="steelblue")
@@ -178,6 +185,7 @@ def task_a2():
     plt.savefig("a2_scalability.png", dpi=150)
     print("Saved → a2_scalability.png")
     plt.show()
+
 
 # A-3
 
